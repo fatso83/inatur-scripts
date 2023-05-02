@@ -1,5 +1,13 @@
 # Notater og skript for bruk av API på iNatur
 
+## Skript
+For å bruke skriptene må du sette miljøvariabelen som inneholder cookie-strengen:
+```
+export INATUR_COOKIE='Cookie: FPID=FPID2.2.r6SJh ....'
+```
+
+- `./kommende-opphold.sh` gir oversikt over bookinger (hvem, når, kontaktinfo)
+
 ## API
 Bruker unix timestamps og url-encoding av "norske parametre". 
 Typisk eksempelkall "Copied as Curl" i Chrome:
@@ -34,10 +42,11 @@ jq '.resultat[] | ."kjøpdatoliste"[0]' network-stubs/min-side.salg.sok.private.
 18.6.2023, 00:00:00
 ```
 
-#### Printe ut tekstlig beskrivelse av oppholdene ved hjelp av JQ
+#### Printe ut tekstlig beskrivelse av start/slutt for oppholdene ved hjelp av JQ
+Filtrerer også ut avbestilte opphold.
+
 ```
-$ jq '.resultat | sort_by(."kjøpdatoliste"[0]) | .[].datoerTekstUtenPrefix' network-stubs/min-side.salg.sok.private.json
-"Ankomstdato: 09.06.2023 - Avreisedato: 11.06.2023"
+$ jq '[.resultat[] | select(false == .erAvbestilt )] | sort_by(."kjøpdatoliste"[0])[] |  .datoerTekstUtenPrefix' network-stubs/min-side.salg.sok.private.json
 "Ankomstdato: 15.06.2023 - Avreisedato: 18.06.2023"
 "Ankomstdato: 18.06.2023 - Avreisedato: 27.06.2023"
 "Ankomstdato: 29.06.2023 - Avreisedato: 02.07.2023"
