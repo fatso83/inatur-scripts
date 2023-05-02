@@ -21,3 +21,29 @@ Stien i strengen over ser slik ut etter dekoding:
 /min-side/salg/sok?&s={"felt":"opprettet","rekkefølge":"SYNKENDE"}&fra=${unix_ts_from}&til=${unix_ts_to}
 ```
 
+#### Printe ut startdato for leieforholdene ved hjelp av JQ:
+```
+jq '.resultat[] | ."kjøpdatoliste"[0]' network-stubs/min-side.salg.sok.private.json  | xargs -n1 -I'{}' node -p "d=new Date({});d.toLocaleString()"
+14.8.2023, 00:00:00
+1.8.2023, 00:00:00
+9.6.2023, 00:00:00
+6.7.2023, 00:00:00
+17.7.2023, 00:00:00
+29.6.2023, 00:00:00
+15.6.2023, 00:00:00
+18.6.2023, 00:00:00
+```
+
+#### Printe ut tekstlig beskrivelse av oppholdene ved hjelp av JQ
+```
+$ jq '.resultat | sort_by(."kjøpdatoliste"[0]) | .[].datoerTekstUtenPrefix' network-stubs/min-side.salg.sok.private.json
+"Ankomstdato: 09.06.2023 - Avreisedato: 11.06.2023"
+"Ankomstdato: 15.06.2023 - Avreisedato: 18.06.2023"
+"Ankomstdato: 18.06.2023 - Avreisedato: 27.06.2023"
+"Ankomstdato: 29.06.2023 - Avreisedato: 02.07.2023"
+"Ankomstdato: 06.07.2023 - Avreisedato: 09.07.2023"
+"Ankomstdato: 17.07.2023 - Avreisedato: 21.07.2023"
+"Ankomstdato: 01.08.2023 - Avreisedato: 06.08.2023"
+"Ankomstdato: 14.08.2023 - Avreisedato: 21.08.2023"
+```
+
