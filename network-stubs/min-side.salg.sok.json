@@ -1,0 +1,279 @@
+{
+  "paginering": {
+    "side": 0,
+    "sideStørrelse": 100,
+    "totaltAntallSider": 100,
+    "harNesteSide": true,
+    "harForrigeSide": false,
+    "erFørsteSide": true,
+    "erSisteSide": false,
+    "antallElementer": 8,
+    "totaltAntallElementer": 9999
+  },
+  "resultat": [
+    {
+      "id": "322b805b3dfdfc35dfe5a0d8",
+      "tilbudId": "f23a92d0440d29d6c7ef45",
+      "tilbudUrl": "/hytte/f23a92d0440d29d6c7ef45/hytte-med-enestaende-beliggenhet-i-eggedalsfjella-fiskevann-og-skiloyper",
+      "tilbyderId": "63ee193639a4b03b97f009e9",
+      "opprettet": 1682608219619,
+      "tilbudstype": "hyttetilbud",
+      "tittel": "Hytte med enestående beliggenhet i Eggedalsfjella. Fiskevann og skiløyper.",
+      "bilde": "//inatur.s3-eu-west-1.amazonaws.com/filer/63ee193639a4b03b97f009e9/641c6c416f08fe2b176ee80d",
+      "type": "Hytte",
+      "ordrenummer": "15051340",
+      "salgskanal": "ONLINE",
+      "salgspris": 6750,
+      "personer": [
+        {
+          "id": "322b807c3dfdfc35dfe5a0d9",
+          "kortnummer": "3570650",
+          "navn": "Tom Almue",
+          "epost": "tom.almue@protonmail.com",
+          "telefonnummer": {
+            "landskode": "+45",
+            "nummer": "27640666",
+            "nummerMedLandskode": "+4527640666",
+            "nummerMedLandskodeUtenPrefix": "4527640666",
+            "landskodeUtenPrefix": "45"
+          },
+          "adresse": {
+            "postnummer": "8585"
+          },
+          "landskode": "DK",
+          "jegeravgiftBetalt": false,
+          "jegernummerRegistrert": false,
+          "feilPåFødselsnummer": false,
+          "harUtestaendeFangstrapporter": false,
+          "jegernummerErUtenlandskMenIkkeGodkjent": false,
+          "ikkeSjekkJegeravgift": false,
+          "skalHaKommunepris": false,
+          "forstegangsjeger": false,
+          "harPåbegyntFangstrapportering": false,
+          "land": "Danmark",
+          "persondetaljOppsummert": "Tom Almue, jegernr. null, født null",
+          "erAktiveringPaaminnelseSendt": false
+        }
+      ],
+      "person": {
+        "id": "322b807c3dfdfc35dfe5a0d9",
+        "kortnummer": "3570650",
+        "navn": "Tom Almue",
+        "epost": "tom.almue@protonmail.com",
+        "telefonnummer": {
+          "landskode": "+45",
+          "nummer": "27640666",
+          "nummerMedLandskode": "+4527640666",
+          "nummerMedLandskodeUtenPrefix": "4527640666",
+          "landskodeUtenPrefix": "45"
+        },
+        "adresse": {
+          "postnummer": "8585"
+        },
+        "landskode": "DK",
+        "jegeravgiftBetalt": false,
+        "jegernummerRegistrert": false,
+        "feilPåFødselsnummer": false,
+        "harUtestaendeFangstrapporter": false,
+        "jegernummerErUtenlandskMenIkkeGodkjent": false,
+        "ikkeSjekkJegeravgift": false,
+        "skalHaKommunepris": false,
+        "forstegangsjeger": false,
+        "harPåbegyntFangstrapportering": false,
+        "land": "Danmark",
+        "persondetaljOppsummert": "Tom Almue, jegernr. null, født null",
+        "erAktiveringPaaminnelseSendt": false
+      },
+      "prisPerKort": 6750,
+      "betaler": {
+        "navn": "Tom Almue",
+        "epost": "tom.almue@protonmail.com",
+        "telefonnummer": {
+          "landskode": "+45",
+          "nummer": "27640666",
+          "nummerMedLandskode": "+4527640666",
+          "nummerMedLandskodeUtenPrefix": "4527640666",
+          "landskodeUtenPrefix": "45"
+        },
+        "adresse": {
+          "postnummer": "8585"
+        },
+        "landskode": "DK",
+        "jegeravgiftBetalt": false,
+        "jegernummerRegistrert": false,
+        "feilPåFødselsnummer": false,
+        "harUtestaendeFangstrapporter": false,
+        "jegernummerErUtenlandskMenIkkeGodkjent": false,
+        "ikkeSjekkJegeravgift": false,
+        "skalHaKommunepris": false,
+        "forstegangsjeger": false,
+        "harPåbegyntFangstrapportering": false,
+        "land": "Danmark",
+        "persondetaljOppsummert": "Tom Almue, jegernr. null, født null",
+        "erAktiveringPaaminnelseSendt": false
+      },
+      "betalerId": "322b80933dfdfc35dfe5a0da",
+      "betalerNavn": "Tom Almue",
+      "betalerEpost": "tom.almue@protonmail.com",
+      "betalerTelefonnummer": "+4527640666",
+      "betalerPostnummer": "8585",
+      "betalerLand": "Danmark",
+      "betalerRegistrert": true,
+      "erAvbestilt": false,
+      "rapporter": false,
+      "kanAvbestilles": true,
+      "kopi": false,
+      "harKortAktivering": false,
+      "status": "BETALT",
+      "netsStatus": "BETALT",
+      "datoerTekstUtenPrefix": "Ankomstdato: 14.08.2023 - Avreisedato: 21.08.2023",
+      "kjøpdatoliste": [
+        1691964000000,
+        1692050400000,
+        1692136800000,
+        1692223200000,
+        1692309600000,
+        1692396000000,
+        1692482400000
+      ],
+      "erKjøpetFerdig": false,
+      "erScanaturaKjop": false,
+      "erSmsKjop": false,
+      "kjopId": "322b805b3dfdfc35dfe5a0d8",
+      "kommunerFormatert": "Sigdal",
+      "erKjøpetGjennomført": true,
+      "opprettetFormatert": "27.04.2023"
+    },
+    {
+      "id": "a322b88182a90f562ffe0d485",
+      "tilbudId": "f23a92d0440d29d6c7ef45",
+      "tilbudUrl": "/hytte/f23a92d0440d29d6c7ef45/hytte-med-enestaende-beliggenhet-i-eggedalsfjella-fiskevann-og-skiloyper",
+      "tilbyderId": "63ee193639a4b03b97f009e9",
+      "opprettet": 1682511896626,
+      "tilbudstype": "hyttetilbud",
+      "tittel": "Hytte med enestående beliggenhet i Eggedalsfjella. Fiskevann og skiløyper.",
+      "bilde": "//inatur.s3-eu-west-1.amazonaws.com/filer/63ee193639a4b03b97f009e9/641c6c416f08fe2b176ee80d",
+      "type": "Hytte",
+      "ordrenummer": "15051018",
+      "salgskanal": "ONLINE",
+      "salgspris": 5500,
+      "personer": [
+        {
+          "id": "a322b88522a90f562ffe0d486",
+          "kortnummer": "3570149",
+          "navn": "Ole Hvitfjell",
+          "epost": "olehvitfjell@protonmail.com",
+          "telefonnummer": {
+            "landskode": "+45",
+            "nummer": "21785555",
+            "nummerMedLandskode": "+4521785555",
+            "nummerMedLandskodeUtenPrefix": "4521785555",
+            "landskodeUtenPrefix": "45"
+          },
+          "adresse": {
+            "postnummer": "6710"
+          },
+          "landskode": "DK",
+          "jegeravgiftBetalt": false,
+          "jegernummerRegistrert": false,
+          "feilPåFødselsnummer": false,
+          "harUtestaendeFangstrapporter": false,
+          "jegernummerErUtenlandskMenIkkeGodkjent": false,
+          "ikkeSjekkJegeravgift": false,
+          "skalHaKommunepris": false,
+          "forstegangsjeger": false,
+          "harPåbegyntFangstrapportering": false,
+          "land": "Danmark",
+          "persondetaljOppsummert": "Ole Hvitfjell, jegernr. null, født null",
+          "erAktiveringPaaminnelseSendt": false
+        }
+      ],
+      "person": {
+        "id": "a322b88522a90f562ffe0d486",
+        "kortnummer": "3570149",
+        "navn": "Ole Hvitfjell",
+        "epost": "olehvitfjell@protonmail.com",
+        "telefonnummer": {
+          "landskode": "+45",
+          "nummer": "21785555",
+          "nummerMedLandskode": "+4521785555",
+          "nummerMedLandskodeUtenPrefix": "4521785555",
+          "landskodeUtenPrefix": "45"
+        },
+        "adresse": {
+          "postnummer": "6710"
+        },
+        "landskode": "DK",
+        "jegeravgiftBetalt": false,
+        "jegernummerRegistrert": false,
+        "feilPåFødselsnummer": false,
+        "harUtestaendeFangstrapporter": false,
+        "jegernummerErUtenlandskMenIkkeGodkjent": false,
+        "ikkeSjekkJegeravgift": false,
+        "skalHaKommunepris": false,
+        "forstegangsjeger": false,
+        "harPåbegyntFangstrapportering": false,
+        "land": "Danmark",
+        "persondetaljOppsummert": "Ole Hvitfjell, jegernr. null, født null",
+        "erAktiveringPaaminnelseSendt": false
+      },
+      "prisPerKort": 5500,
+      "betaler": {
+        "navn": "Ole Hvitfjell",
+        "epost": "olehvitfjell@protonmail.com",
+        "telefonnummer": {
+          "landskode": "+45",
+          "nummer": "21785555",
+          "nummerMedLandskode": "+4521785555",
+          "nummerMedLandskodeUtenPrefix": "4521785555",
+          "landskodeUtenPrefix": "45"
+        },
+        "adresse": {
+          "postnummer": "6710"
+        },
+        "landskode": "DK",
+        "jegeravgiftBetalt": false,
+        "jegernummerRegistrert": false,
+        "feilPåFødselsnummer": false,
+        "harUtestaendeFangstrapporter": false,
+        "jegernummerErUtenlandskMenIkkeGodkjent": false,
+        "ikkeSjekkJegeravgift": false,
+        "skalHaKommunepris": false,
+        "forstegangsjeger": false,
+        "harPåbegyntFangstrapportering": false,
+        "land": "Danmark",
+        "persondetaljOppsummert": "Ole Hvitfjell, jegernr. null, født null",
+        "erAktiveringPaaminnelseSendt": false
+      },
+      "betalerId": "521d0292e4b0b2503f848772",
+      "betalerNavn": "Ole Hvitfjell",
+      "betalerEpost": "olehvitfjell@protonmail.com",
+      "betalerTelefonnummer": "+4521785555",
+      "betalerPostnummer": "6710",
+      "betalerLand": "Danmark",
+      "betalerRegistrert": true,
+      "erAvbestilt": false,
+      "rapporter": false,
+      "kanAvbestilles": true,
+      "kopi": false,
+      "harKortAktivering": false,
+      "status": "BETALT",
+      "netsStatus": "BETALT",
+      "datoerTekstUtenPrefix": "Ankomstdato: 01.08.2023 - Avreisedato: 06.08.2023",
+      "kjøpdatoliste": [
+        1690840800000,
+        1690927200000,
+        1691013600000,
+        1691100000000,
+        1691186400000
+      ],
+      "erKjøpetFerdig": false,
+      "erScanaturaKjop": false,
+      "erSmsKjop": false,
+      "kjopId": "a322b88182a90f562ffe0d485",
+      "kommunerFormatert": "Sigdal",
+      "erKjøpetGjennomført": true,
+      "opprettetFormatert": "26.04.2023"
+    }
+  ]
+}
