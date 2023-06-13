@@ -11,6 +11,7 @@
 #  ...
 #]
 
+#set -x
 
 # ikke sikker på om jeg skal gjøre noe med dette ennå ... p.t. er dette mer som en analyse
 create_cookies(){
@@ -39,11 +40,19 @@ sort_and_extract(){
           | select( false == .erAvbestilt )
         ] 
         | sort_by( ."kjøpdatoliste"[0] ) 
-        | map( { when : .datoerTekstUtenPrefix, 
+        | map( { when_as_text : .datoerTekstUtenPrefix, 
                  who  : .person.navn,
                  phone: .person.telefonnummer.nummerMedLandskode, 
-                 email: .person.epost
+                 email: .person.epost,
+                 checkin: (."kjøpdatoliste"[0] / 1000 | strflocaltime("%F @ 15:00")),
+                 checkout:  ( (."kjøpdatoliste"[-1] / 1000) + (3600*24) | strflocaltime("%F @ 13:00") ),
+                 first_day: (."kjøpdatoliste"[0] / 1000 | strflocaltime("%F")),
+                 last_day_before_checkout:  ( (."kjøpdatoliste"[-1] / 1000) | strflocaltime("%F") )
            })' 
+
+    # converting the timestamps to local time looks something like this:
+    #   d=new Date(1691964000000)
+    #   console.log(new Intl.DateTimeFormat('en-GB', { dateStyle: 'full', timeStyle: 'long', timeZone: 'Europe/Oslo' }).format(d))
 }
 
 fetch_data(){
