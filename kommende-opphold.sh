@@ -30,7 +30,7 @@ params() {
 }
 
 cookies(){
-    printf "%s" "$INATUR_COOKIE"
+    printf "Cookie: %s" "$INATUR_COOKIE"
 }
 
 sort_and_extract(){
@@ -47,13 +47,22 @@ sort_and_extract(){
 }
 
 fetch_data(){
-    curl --silent "https://www.inatur.no/min-side/salg/sok"   \
+    TMP=$(mktemp)
+    curl --silent --fail-with-body "https://www.inatur.no/min-side/salg/sok"   \
          -H 'Accept: application/json, text/javascript, */*; q=0.01'   \
-         -H "$(cookies)"
+         -H "$(cookies)" -o $TMP
+
+    if [ $? == 0 ]; then
+        cat $TMP
+    else
+        printf "FEIL: greide ikke laste ned data\n" >> /dev/stderr
+        cat $TMP >> /dev/stderr
+        exit 1
+    fi
 }
 
 if [[ "$INATUR_COOKIE" == "" ]]; then
-    echo "Sett INATUR_COOKIE=\"Cookie: FPID=FPID2....\""
+    echo "Sett INATUR_COOKIE=\"FPID=FPID2....\""
     exit 1
 fi
 
