@@ -13,6 +13,8 @@
 
 #set -x
 
+OPTION=$1
+
 # ikke sikker på om jeg skal gjøre noe med dette ennå ... p.t. er dette mer som en analyse
 create_cookies(){
     local rm_token=Y2FybG...
@@ -75,4 +77,23 @@ if [[ "$INATUR_COOKIE" == "" ]]; then
     exit 1
 fi
 
-fetch_data | sort_and_extract
+filter_output(){
+    if [[ $OPTION == "--anon" ]]; then 
+        jq --raw-output 'map(.when_as_text)[]'
+    else
+        cat
+    fi
+}
+
+usage(){
+    printf "\nBRUK: $0 [-h | --anon]\n"
+    printf "  --anon    Anonymize output\n"
+    exit 1
+}
+
+if [[ $OPTION != "--anon" ]]; then 
+    usage
+fi
+
+
+fetch_data | sort_and_extract | filter_output
