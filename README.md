@@ -3,10 +3,50 @@
 ## Skript
 For å bruke skriptene må du sette miljøvariabelen som inneholder cookie-strengen:
 ```
-export INATUR_COOKIE='Cookie: FPID=FPID2.2.r6SJh ....'
+export INATUR_COOKIE='FPID=FPID2.2.r6SJh ....'
 ```
 
-- `./kommende-opphold.sh` gir oversikt over bookinger (hvem, når, kontaktinfo)
+### Kommende opphold
+`./kommende-opphold.sh` gir oversikt over bookinger (hvem, når, kontaktinfo)
+
+#### Eksempel
+
+```
+$ ./kommende-opphold.sh  --anon
+Ankomstdato: 15.06.2023 - Avreisedato: 18.06.2023
+Ankomstdato: 18.06.2023 - Avreisedato: 27.06.2023
+Ankomstdato: 29.06.2023 - Avreisedato: 02.07.2023
+Ankomstdato: 06.07.2023 - Avreisedato: 09.07.2023
+Ankomstdato: 17.07.2023 - Avreisedato: 21.07.2023
+Ankomstdato: 01.08.2023 - Avreisedato: 06.08.2023
+Ankomstdato: 14.08.2023 - Avreisedato: 21.08.2023
+
+$ ./kommende-opphold.sh 
+  {
+    "when_as_text": "Ankomstdato: 15.06.2023 - Avreisedato: 18.06.2023",
+    "who": "John Doe",
+    "phone": "1235151002",
+    "email": "foo@bar.com",
+    "checkin": "2023-06-15 @ 15:00",
+    "checkout": "2023-06-18 @ 13:00",
+    "first_day": "2023-06-15",
+    "last_day_before_checkout": "2023-06-17"
+  },
+  {
+    "when_as_text": "Ankomstdato: 18.06.2023 - Avreisedato: 27.06.2023",
+    "who": "John Doe",
+    "phone": "1235151002",
+    "email": "foo@bar.com",
+    "checkin": "2023-06-18 @ 15:00",
+    "checkout": "2023-06-27 @ 13:00",
+    "first_day": "2023-06-18",
+    "last_day_before_checkout": "2023-06-26"
+  },
+  {
+
+```
+
+
 
 ## API
 Bruker unix timestamps og url-encoding av "norske parametre". 
