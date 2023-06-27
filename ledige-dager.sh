@@ -1,8 +1,22 @@
 #!/bin/bash
 
-if [[ $# != 2 ]]; then
+if [[ "$DEBUG" != "" ]]; then
+    set -x
+fi
+
+usage(){
     echo USAGE: $0 27-3-2022 24-4-2022
-    exit
+    exit 1
+}
+
+if [[ $# != 2 ]]; then
+    printf "Missing arguments\n"
+    usage
+fi
+
+if [[ "$INATUR_COOKIE" == "" ]]; then
+    printf "INATUR_COOKIE not set. Get it from the webpage request headers\nTo set it:\n\n  read -s INATUR_COOKIE\n  export INATUR_COOKIE\n\n"
+    usage
 fi
 
 FROM=$1
