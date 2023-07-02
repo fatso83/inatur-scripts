@@ -11,9 +11,9 @@
 #  ...
 #]
 
-#set -x
+set -x
 
-OPTION=$1
+OPTION="$1"
 
 # ikke sikker på om jeg skal gjøre noe med dette ennå ... p.t. er dette mer som en analyse
 create_cookies(){
@@ -21,7 +21,7 @@ create_cookies(){
     local heroku=ADaDaANoA2...
     local session=80337103228...
     local tilbyder=63ee193639a4...
-    printf "%s" "Cookie: rm=${rm_token}; heroku-session-affinity=${heroku}; session=${session}; aktivTilbyder=${tilbyder}"    
+    printf "%s" "rm=${rm_token}; heroku-session-affinity=${heroku}; session=${session}; aktivTilbyder=${tilbyder}"    
 }
 
 # usikker på hva "fra" og "til" betyr her: start salg eller start opphold?
@@ -33,7 +33,7 @@ params() {
 }
 
 cookies(){
-    printf "Cookie: %s" "$INATUR_COOKIE"
+    printf "%s" "$INATUR_COOKIE"
 }
 
 sort_and_extract(){
@@ -61,7 +61,7 @@ fetch_data(){
     TMP=$(mktemp)
     curl --silent --fail-with-body "https://www.inatur.no/min-side/salg/sok"   \
          -H 'Accept: application/json, text/javascript, */*; q=0.01'   \
-         -H "$(cookies)" -o $TMP
+         -H "Cookie: $(cookies)" -o $TMP
 
     if [ $? == 0 ]; then
         cat $TMP
@@ -91,7 +91,7 @@ usage(){
     exit 1
 }
 
-if [[ $OPTION != "--anon" ]]; then 
+if [[ $OPTION != "" && $OPTION != "--anon" ]]; then 
     usage
 fi
 
