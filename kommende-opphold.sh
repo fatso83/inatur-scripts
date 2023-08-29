@@ -11,7 +11,9 @@
 #  ...
 #]
 
-set -x
+if [[ x$DEBUG != x ]]; then
+    set -x
+fi
 
 OPTION="$1"
 
@@ -49,8 +51,11 @@ sort_and_extract(){
                  checkin: (."kjøpdatoliste"[0] / 1000 | strflocaltime("%F @ 15:00")),
                  checkout:  ( (."kjøpdatoliste"[-1] / 1000) + (3600*24) | strflocaltime("%F @ 13:00") ),
                  first_day: (."kjøpdatoliste"[0] / 1000 | strflocaltime("%F")),
+                 first_day_unix: (."kjøpdatoliste"[0] / 1000 ),
                  last_day_before_checkout:  ( (."kjøpdatoliste"[-1] / 1000) | strflocaltime("%F") )
-           })' 
+           })
+           | map( select( .first_day_unix > now ))
+        ' 
 
     # converting the timestamps to local time looks something like this:
     #   d=new Date(1691964000000)
