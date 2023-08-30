@@ -52,7 +52,8 @@ sort_and_extract(){
                  checkout:  ( (."kjøpdatoliste"[-1] / 1000) + (3600*24) | strflocaltime("%F @ 13:00") ),
                  first_day: (."kjøpdatoliste"[0] / 1000 | strflocaltime("%F")),
                  first_day_unix: (."kjøpdatoliste"[0] / 1000 ),
-                 last_day_before_checkout:  ( (."kjøpdatoliste"[-1] / 1000) | strflocaltime("%F") )
+                 last_day_before_checkout:  ( (."kjøpdatoliste"[-1] / 1000) | strflocaltime("%F") ),
+                 provider: "inatur"
            })
            | map( select( .first_day_unix > now ))
         ' 
