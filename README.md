@@ -3,8 +3,8 @@
 ## Skript
 For å bruke skriptene må du sette miljøvariabelen som inneholder cookie-strengen:
 ```
-export INATUR_COOKIE='FPID=FPID2.2.r6SJh ....'
-```
+# example
+export INATUR_COOKIE='session=879531233979068807019zzds7ohgizr78wj6fw4xet914262.8795350439790688070;aktivTilbyder=63aa193639a4b03b97f009e9```
 
 ### Kommende opphold
 `./kommende-opphold.sh` gir oversikt over bookinger (hvem, når, kontaktinfo)
