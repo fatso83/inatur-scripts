@@ -17,26 +17,10 @@ fi
 
 OPTION="$1"
 
-# ikke sikker på om jeg skal gjøre noe med dette ennå ... p.t. er dette mer som en analyse
-create_cookies(){
-    local rm_token=Y2FybG...
-    local heroku=ADaDaANoA2...
-    local session=80337103228...
-    local tilbyder=63ee193639a4...
-    printf "%s" "rm=${rm_token}; heroku-session-affinity=${heroku}; session=${session}; aktivTilbyder=${tilbyder}"    
-}
-
-# usikker på hva "fra" og "til" betyr her: start salg eller start opphold?
-params() {
-    #local from_ts=1672527600000;
-    #local to_ts=1682892000000;
-    #printf "?fra=${from}&til=${to_ts}" 
-    echo ''
-}
-
-cookies(){
-    printf "%s" "$INATUR_COOKIE"
-}
+if [[ -z $INATUR_COOKIE ]]; then 
+    printf "\nNo INATUR_COOKIE env variable set! Trying to fetch automatically ...\n"
+    eval "$(./fetch-cookie --doExport)"
+fi
 
 sort_and_extract(){
     jq '[ 
@@ -65,11 +49,9 @@ sort_and_extract(){
 
 fetch_data(){
     TMP=$(mktemp)
-    curl --silent --fail-with-body "https://www.inatur.no/min-side/salg/sok"   \
+    if curl --silent --fail-with-body "https://www.inatur.no/min-side/salg/sok"   \
          -H 'Accept: application/json, text/javascript, */*; q=0.01'   \
-         -H "Cookie: $(cookies)" -o $TMP
-
-    if [ $? == 0 ]; then
+         -H "Cookie: $INATUR_COOKIE" -o "$TMP"; then
         cat $TMP
     else
         printf "FEIL: greide ikke laste ned data\n" >> /dev/stderr
@@ -92,7 +74,7 @@ filter_output(){
 }
 
 usage(){
-    printf "\nBRUK: $0 [-h | --anon]\n"
+    printf "\nUSAGE: $0 [-h | --anon]\n"
     printf "  --anon    Anonymize output\n"
     exit 1
 }

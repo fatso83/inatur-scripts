@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "debug": "^4.4.1",
+    "openid-client": "^6.6.2",
+    "playwright": "^1.53.2"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.10"
+  }
+}
