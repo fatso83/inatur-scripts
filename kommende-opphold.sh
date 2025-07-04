@@ -18,8 +18,9 @@ fi
 OPTION="$1"
 
 if [[ -z $INATUR_COOKIE ]]; then 
-    printf "\nNo INATUR_COOKIE env variable set! Trying to fetch automatically ...\n"
-    eval "$(./fetch-cookie --doExport)"
+    printf "\nNo INATUR_COOKIE env variable set! Execute the following line in your shell\n"
+    printf "eval \"\$(./fetch-cookie --doExport)\""
+    exit 1
 fi
 
 sort_and_extract(){

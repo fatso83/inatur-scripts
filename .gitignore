@@ -1,1 +1,2 @@
 *.private.json
+.session-token.txt

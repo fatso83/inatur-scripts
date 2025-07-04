@@ -1,0 +1,88 @@
+#!/usr/bin/env bash
+
+if [[ -n $DEBUG ]]; then
+    set -x
+fi
+
+main(){
+    local value
+    trap handle-exit EXIT 
+
+    case "$1" in 
+        refresh)
+            value="$(./fetch-session-token)"
+            persist "$value"
+            ;;
+        delete) delete;
+            ;;
+        persist) 
+            shift
+            persist "$@"
+            ;;
+        invalidate) 
+            invalidate-old
+            ;;
+        export) do-export
+            ;;
+        *) 
+            usage 
+            exit 1
+            ;;
+    esac
+}
+
+handle-exit(){
+    :
+    #echo "Exiting"
+}
+
+delete(){
+    rm -f .session-token.txt
+}
+
+persist(){
+    if [ -z "$1" ]; then
+        error "Nothing to persist. No argument received"
+    fi
+    echo "$@" > .session-token.txt
+}
+
+# exit status:
+# 1 if invalid or invalid
+invalidate-old(){
+    # invalidate any cookie older than six hours
+    if find . -mtime -6h -name .session-token.txt > /dev/null; then
+        return 0
+    fi
+    delete
+    return 1
+}
+
+do-export(){
+    local session
+    if [[ ! -e .session-token.txt ]]; then
+        error "No cookie stored."
+    fi
+    session=$(cat .session-token.txt)
+    echo "export INATUR_COOKIE='session=$session; aktivTilbyder=$INATUR_AKTIVTILBYDER'"
+}
+
+error(){
+        echo "$@" >&2
+        exit 1
+}
+
+usage(){
+    echo
+    echo "USAGE: $0 <option> [argument]"
+    echo "  where <option> is one of "
+    echo '
+    export              Prints the INATUR_COOKIE as an export statement for "eval" 
+    invalidate          OK if < 6h old cookie, else exit status of 1
+    persist <cookie>    Will persist the session cookie
+    delete              Force delete. Typical on a 401
+    refresh             refresh the session cookie
+    '
+}
+
+main "$@"

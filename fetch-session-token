@@ -4,23 +4,19 @@ const debug = require("debug")("fetch-cookie");
 const startTime = Date.now();
 
 function usage() {
-  console.log(`${process.argv[1]} [--doExport]}
-    --doExport     Will output the cookie as easily sourcable: 'export INATUR_COOKIE=...'
-    
-    Typical usage in script: \`eval "$(./fetch-cookie --doExport)"\`
+  console.log(`USAGE: ${process.argv[1]} 
+    Will output the relevant cookies
         `);
 
   process.exit(1);
 }
 const user = process.env.INATUR_USER;
 const pass = process.env.INATUR_PASSWORD;
-const aktivTilbyder = process.env.INATUR_AKTIVTILBYDER;
 if (!user || !pass) {
-  console.error("set INATUR_USER, INATUR_PASSWORD and INATUR_AKTIVTILBYDER");
+  console.error("set INATUR_USER and INATUR_PASSWORD");
   usage();
 }
-const doExport = process.argv[2] === "--doExport";
-if (process.argv.length > 2 && !doExport) usage();
+if (process.argv.length > 2) usage();
 
 (async () => {
   const browser = await chromium.launch({ headless: true });
@@ -61,12 +57,7 @@ if (process.argv.length > 2 && !doExport) usage();
   }
 
   const duration = Date.now() - startTime;
-  if (!doExport)
-    console.log(`Session cookie: ${session}.\nTook ${duration} ms`);
-  else
-    console.log(
-      `export INATUR_COOKIE="session=${session}; aktivTilbyder=${aktivTilbyder}"`,
-    );
+  console.log(session);
   debug(`Duration: ${duration} ms`);
 
   await browser.close();
