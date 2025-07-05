@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+TOKENFILE=".session-token.txt"
+
 if [[ -n $DEBUG ]]; then
     set -x
 fi
@@ -9,6 +11,8 @@ main(){
     trap handle-exit EXIT 
 
     case "$1" in 
+        self-test) self-test
+            ;;
         refresh)
             value="$(./fetch-session-token)"
             persist "$value"
@@ -31,45 +35,71 @@ main(){
     esac
 }
 
+# no-op, exit in tests, where it is overwritten for teardown
 handle-exit(){
     :
-    #echo "Exiting"
 }
 
-delete(){
-    rm -f .session-token.txt
+delete-tokenfile(){
+    rm -f "$TOKENFILE"
 }
 
 persist(){
     if [ -z "$1" ]; then
         error "Nothing to persist. No argument received"
     fi
-    echo "$@" > .session-token.txt
+    echo "$@" > "$TOKENFILE"
 }
 
 # exit status:
 # 1 if invalid or invalid
 invalidate-old(){
     # invalidate any cookie older than six hours
-    if find . -mtime -6h -name .session-token.txt > /dev/null; then
-        return 0
+    if  [[ $(find . -mtime -6h -name "$TOKENFILE" -print -quit) == '' ]]; then
+        delete-tokenfile
+        return 1
     fi
-    delete
-    return 1
 }
 
 do-export(){
     local session
-    if [[ ! -e .session-token.txt ]]; then
+    if [[ ! -e "$TOKENFILE" ]]; then
         error "No cookie stored."
     fi
-    session=$(cat .session-token.txt)
+    session=$(cat "$TOKENFILE")
     echo "export INATUR_COOKIE='session=$session; aktivTilbyder=$INATUR_AKTIVTILBYDER'"
 }
 
 error(){
         echo "$@" >&2
         exit 1
+}
+
+self-test(){
+    assert(){
+        if [[ $# != 2 ]]; then 
+            echo "assert() requires 2 args: <test> <msg>"
+            exit 1
+        fi
+        if ! eval "$1"; then 
+            shift
+            echo "$@"
+            exit 1
+        fi
+    }
+    test_invalidate(){
+        rm -f "$TOKENFILE"
+        assert '! invalidate-old' 'Expected to fail on missing tokenfile'
+
+        touch "$TOKENFILE"
+        assert 'invalidate-old'   'Expected not to fail on new tokenfile'
+    }
+
+    handle-exit(){
+        echo "test teardown"
+        delete-tokenfile
+    }
+    test_invalidate
 }
 
 usage(){
@@ -82,6 +112,7 @@ usage(){
     persist <cookie>    Will persist the session cookie
     delete              Force delete. Typical on a 401
     refresh             refresh the session cookie
+    self-test           Run built-in tests
     '
 }
 
