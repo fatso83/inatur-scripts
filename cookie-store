@@ -14,7 +14,7 @@ main(){
         self-test) self-test
             ;;
         refresh)
-            value="$(./fetch-session-token)"
+            value="$(./fetch-or-refresh-session-token)"
             persist "$value"
             ;;
         delete) delete;
@@ -23,7 +23,7 @@ main(){
             shift
             persist "$@"
             ;;
-        invalidate) 
+        validate) 
             invalidate-old
             ;;
         export) do-export
@@ -42,6 +42,9 @@ handle-exit(){
 
 delete-tokenfile(){
     rm -f "$TOKENFILE"
+    if [[ -e "$TOKENFILE".bak ]]; then
+        mv "$TOKENFILE"{.bak,}
+    fi
 }
 
 persist(){
@@ -55,7 +58,7 @@ persist(){
 # 1 if invalid or invalid
 invalidate-old(){
     # invalidate any cookie older than six hours
-    if  [[ $(find . -mtime -6h -name "$TOKENFILE" -print -quit) == '' ]]; then
+    if  [[ $(find . -mtime -1h -name "$TOKENFILE" -print -quit) == '' ]]; then
         delete-tokenfile
         return 1
     fi
@@ -99,9 +102,14 @@ self-test(){
     }
 
     handle-exit(){
-        echo "test teardown"
         delete-tokenfile
     }
+
+    # run tests
+    if [[ -e "$TOKENFILE" ]]; then
+        mv "$TOKENFILE"{,.bak}
+    fi
+
     test_invalidate
 }
 
@@ -111,7 +119,7 @@ usage(){
     echo "  where <option> is one of "
     echo '
     export              Prints the INATUR_COOKIE as an export statement for "eval" 
-    invalidate          OK if < 6h old cookie, else exit status of 1
+    validate            OK if < 1h old cookie, else exit status of 1
     persist <cookie>    Will persist the session cookie
     delete              Force delete. Typical on a 401
     refresh             refresh the session cookie

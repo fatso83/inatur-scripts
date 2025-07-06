@@ -1,2 +1,4 @@
 *.private.json
 .session-token.txt
+cookies.json
+notater.txt

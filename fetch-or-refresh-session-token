@@ -1,0 +1,95 @@
+#!/usr/bin/env node
+const fs = require("fs");
+const path = require("path");
+const { chromium } = require("playwright");
+const BASE_URL = "https://www.inatur.no";
+
+async function tryRefreshOrLogin(_ctx, page, targetPath, user, pass) {
+  const targetUrl = `${BASE_URL}${targetPath}`;
+  const loginUrl = `${BASE_URL}/login?callbackAction=${encodeURIComponent(
+    targetPath
+  )}`;
+
+  // 1) Start login flow
+  await page.goto(loginUrl, { waitUntil: "networkidle" });
+
+  // 2) Wait to see if we got to the Keycloak form or was simply refreshed
+  if (page.url().match(targetUrl))
+    // we simply needed to refresh the token!
+    return false;
+
+  await page.waitForSelector('input[name="username"]', { timeout: 10000 });
+
+  // 3) Fill & submit
+  await page.fill('input[name="username"]', user);
+  await page.fill('input[name="password"]', pass);
+  await Promise.all([
+    page.click('button[type="submit"]'),
+    // wait for the final navigation to callbackPath
+    page.waitForURL(`https://www.inatur.no${targetPath}`, {
+      timeout: 15000,
+      waitUntil: "networkidle",
+    }),
+  ]);
+  return true;
+}
+
+async function main() {
+  const user = process.env.INATUR_USER;
+  const pass = process.env.INATUR_PASSWORD;
+  if (!user || !pass) {
+    console.error("Please set INATUR_USER and INATUR_PASSWORD");
+    process.exit(1);
+  }
+
+  const targetPath = "/min-side";
+  const targetUrl = BASE_URL + targetPath;
+
+  const browser = await chromium.launch({ headless: true });
+  const ctx = await browser.newContext();
+  const page = await ctx.newPage();
+
+  // Try reuse
+  const COOKIE_FILE = path.resolve(process.cwd(), "cookies.json");
+  if (fs.existsSync(COOKIE_FILE)) {
+    const stored = JSON.parse(fs.readFileSync(COOKIE_FILE, "utf8"));
+    await ctx.addCookies(stored);
+
+    // Quick header check
+    //debugPage(page, "min side", targetUrl);
+    const resp = await page.request.get(targetUrl);
+    if (resp.status() === 403) {
+      didFullLogin = await tryRefreshOrLogin(ctx, page, targetPath, user, pass);
+    }
+  } else {
+    didFullLogin = await tryRefreshOrLogin(ctx, page, targetPath, user, pass);
+  }
+
+  // Grab the session cookie
+  const sessionCookie = (await ctx.cookies()).find((c) => c.name === "session");
+  if (!sessionCookie) {
+    console.error("❌ No `session` cookie found!");
+    await browser.close();
+    process.exit(1);
+  }
+
+  // Save cookies.json for next time
+  fs.writeFileSync(COOKIE_FILE, JSON.stringify(await ctx.cookies(), null, 2));
+
+  // Output
+  console.log(sessionCookie.value);
+
+  await browser.close();
+  process.exit(0);
+}
+
+async function debugPage(page, title, url) {
+  console.debug(`title: ${title}   --   url: ${url} `);
+  const resp = await page.request.get(url);
+  console.debug("status", resp.status());
+}
+
+main().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});

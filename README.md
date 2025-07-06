@@ -1,11 +1,11 @@
 # inatur-scripts
 
 ## Hvordan bruke skriptene
-For å bruke skriptene må du sette miljøvariabelen som inneholder cookie-strengen:
+For å bruke skriptene må du sette miljøvariablene i `.env`:
 ```
-INATUR_AKTIVTILBYDER=63ee178919a4b03b67f009e9
-INATUR_USER=carlerik@gmail.com
-INATUR_PASSWORD=super-hemmelig
+INATUR_USER="foo@protonbar.com"
+INATUR_PASSWORD="edga*HVFcorona"
+INATUR_AKTIVTILBYDER="39a4b03b97f009e9" 
 ```
 
 ## Skriptene som er inkludert
