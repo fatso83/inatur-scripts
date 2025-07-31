@@ -66,6 +66,9 @@ do-export(){
     if [[ ! -e "$TOKENFILE" ]]; then
         error "No cookie stored."
     fi
+    if [[ -z "$INATUR_AKTIVTILBYDER" ]]; then
+        error "Environment variable INATUR_AKTIVTILBYDER is not set"
+    fi
     session=$(cat "$TOKENFILE")
     echo "export INATUR_COOKIE='session=$session; aktivTilbyder=$INATUR_AKTIVTILBYDER'"
 }

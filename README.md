@@ -1,98 +1,58 @@
-# Notater og skript for bruk av API på iNatur
+# inatur-scripts
 
-## Skript
+## Hvordan bruke skriptene
 For å bruke skriptene må du sette miljøvariabelen som inneholder cookie-strengen:
 ```
-# example
-export INATUR_COOKIE='session=879531233979068807019zzds7ohgizr78wj6fw4xet914262.8795350439790688070;aktivTilbyder=63aa193639a4b03b97f009e9```
-
-### Kommende opphold
-`./kommende-opphold.sh` gir oversikt over bookinger (hvem, når, kontaktinfo)
-
-#### Eksempel
-
-```
-$ ./kommende-opphold.sh  --anon
-Ankomstdato: 15.06.2023 - Avreisedato: 18.06.2023
-Ankomstdato: 18.06.2023 - Avreisedato: 27.06.2023
-Ankomstdato: 29.06.2023 - Avreisedato: 02.07.2023
-Ankomstdato: 06.07.2023 - Avreisedato: 09.07.2023
-Ankomstdato: 17.07.2023 - Avreisedato: 21.07.2023
-Ankomstdato: 01.08.2023 - Avreisedato: 06.08.2023
-Ankomstdato: 14.08.2023 - Avreisedato: 21.08.2023
-
-$ ./kommende-opphold.sh 
-  {
-    "when_as_text": "Ankomstdato: 15.06.2023 - Avreisedato: 18.06.2023",
-    "who": "John Doe",
-    "phone": "1235151002",
-    "email": "foo@bar.com",
-    "checkin": "2023-06-15 @ 15:00",
-    "checkout": "2023-06-18 @ 13:00",
-    "first_day": "2023-06-15",
-    "last_day_before_checkout": "2023-06-17"
-  },
-  {
-    "when_as_text": "Ankomstdato: 18.06.2023 - Avreisedato: 27.06.2023",
-    "who": "John Doe",
-    "phone": "1235151002",
-    "email": "foo@bar.com",
-    "checkin": "2023-06-18 @ 15:00",
-    "checkout": "2023-06-27 @ 13:00",
-    "first_day": "2023-06-18",
-    "last_day_before_checkout": "2023-06-26"
-  },
-  {
-
+INATUR_AKTIVTILBYDER=63ee178919a4b03b67f009e9
+INATUR_USER=carlerik@gmail.com
+INATUR_PASSWORD=super-hemmelig
 ```
 
+## Skriptene som er inkludert
 
+### kommende-opphold.sh
 
-## API
-Bruker unix timestamps og url-encoding av "norske parametre". 
-Typisk eksempelkall "Copied as Curl" i Chrome:
-
+#### Anonymous mode
+Med og uten anonyme data
 ```
-curl 'https://www.inatur.no/min-side/salg/sok?&s=%7B%22felt%22%3A%22opprettet%22%2C%22rekkef%C3%B8lge%22%3A%22SYNKENDE%22%7D&fra=1672527600000&til=1682892000000' \
-  -H 'Accept: application/json, text/javascript, */*; q=0.01' \
-  -H 'Cookie: FPID=FPID2.2....28663; CookieConsent={stamp:%27JVhrHdvUo4iVogre4K822NgVoZbE/GIO5t/TQ94s4CRu1EvvmQgDkA==%27%2Cnecessary:true%2Cpreferences:false%2Cstatistics:false%2Cmarketing:false%2Cmethod:%27explicit%27%2Cver:2%2Cutc:1680624888058%2Cregion:%27no%27}; rm=Y2Fyb...; heroku-session-affinity=ADaD...__; session=8033...; aktivTilbyder=63ee193639a4b03....' \
-  -H 'If-Modified-Since: Mon, 01 May 2023 16:51:00 GMT' \
-  -H 'If-None-Match: "0d31f230a588336503241dd0959a28cf1--gzip"' \
-```
-Stien i strengen over ser slik ut etter dekoding:
-```
-/min-side/salg/sok?&s={"felt":"opprettet","rekkefølge":"SYNKENDE"}&fra=1672527600000&til=1682892000000
+./kommende-opphold.sh --anon
+Ankomstdato: 28.07.2025 - Avreisedato: 01.08.2025
+Ankomstdato: 01.08.2025 - Avreisedato: 03.08.2025
+Ankomstdato: 13.08.2025 - Avreisedato: 17.08.2025
+Ankomstdato: 19.08.2025 - Avreisedato: 22.08.2025
 ```
 
-### Salg på Min Side
+### ledige-dager.sh
 ```
-/min-side/salg/sok?&s={"felt":"opprettet","rekkefølge":"SYNKENDE"}&fra=${unix_ts_from}&til=${unix_ts_to}
-```
-
-#### Printe ut startdato for leieforholdene ved hjelp av JQ:
-```
-jq '.resultat[] | ."kjøpdatoliste"[0]' network-stubs/min-side.salg.sok.private.json  | xargs -n1 -I'{}' node -p "d=new Date({});d.toLocaleString()"
-14.8.2023, 00:00:00
-1.8.2023, 00:00:00
-9.6.2023, 00:00:00
-6.7.2023, 00:00:00
-17.7.2023, 00:00:00
-29.6.2023, 00:00:00
-15.6.2023, 00:00:00
-18.6.2023, 00:00:00
+ ./ledige-dager.sh 27-7-2025 20-09-2025
+"3/8/2025"
+"5/8/2025"
+"6/8/2025"
+"7/8/2025"
+"8/8/2025"
+"9/8/2025"
+"10/8/2025"
+"11/8/2025"
+"12/8/2025"
+"17/8/2025"
+"18/8/2025"
 ```
 
-#### Printe ut tekstlig beskrivelse av start/slutt for oppholdene ved hjelp av JQ
-Filtrerer også ut avbestilte opphold.
+### cookie-store
+bash script med innebygd test-suite som håndterer innhenting av cookie, oppfriskning av sesjoner, m.m.
+Som sluttbruker trenger du ikke tenke direkte på det, men kan brukes sammen med direnv for å sørge for
+veldig smoothe opplevelser :)
 
 ```
-$ jq '[.resultat[] | select(false == .erAvbestilt )] | sort_by(."kjøpdatoliste"[0])[] |  .datoerTekstUtenPrefix' network-stubs/min-side.salg.sok.private.json
-"Ankomstdato: 15.06.2023 - Avreisedato: 18.06.2023"
-"Ankomstdato: 18.06.2023 - Avreisedato: 27.06.2023"
-"Ankomstdato: 29.06.2023 - Avreisedato: 02.07.2023"
-"Ankomstdato: 06.07.2023 - Avreisedato: 09.07.2023"
-"Ankomstdato: 17.07.2023 - Avreisedato: 21.07.2023"
-"Ankomstdato: 01.08.2023 - Avreisedato: 06.08.2023"
-"Ankomstdato: 14.08.2023 - Avreisedato: 21.08.2023"
-```
+ ./cookie-store
 
+USAGE: ./cookie-store <option> [argument]
+  where <option> is one of
+
+    export              Prints the INATUR_COOKIE as an export statement for "eval"
+    invalidate          OK if < 6h old cookie, else exit status of 1
+    persist <cookie>    Will persist the session cookie
+    delete              Force delete. Typical on a 401
+    refresh             refresh the session cookie
+    self-test           Run built-in tests
+```
