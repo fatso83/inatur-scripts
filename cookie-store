@@ -58,7 +58,7 @@ persist(){
 # 1 if invalid or invalid
 invalidate-old(){
     # invalidate any cookie older than six hours
-    if  [[ $(find . -mtime -1h -name "$TOKENFILE" -print -quit) == '' ]]; then
+    if  [[ $(find . -mmin -60 -name "$TOKENFILE" -print -quit) == '' ]]; then
         delete-tokenfile
         return 1
     fi

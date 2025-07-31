@@ -56,3 +56,24 @@ USAGE: ./cookie-store <option> [argument]
     refresh             refresh the session cookie
     self-test           Run built-in tests
 ```
+
+#### Eksempler på kald innhenting av token, varm oppfriskning, validering
+```
+❯ time ./cookie-store refresh
+
+real    0m6,197s
+user    0m1,237s
+sys     0m0,627s
+
+❯ time ./cookie-store refresh
+
+real    0m0,926s
+user    0m0,696s
+sys     0m0,326s
+
+❯ time ./cookie-store validate
+
+real    0m0,014s
+user    0m0,000s
+sys     0m0,015s
+```
