@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 TOKENFILE=".session-token.txt"
+COOKIES_FILE="cookies.json"
 
 if [[ -n $DEBUG ]]; then
     set -x
@@ -66,14 +67,42 @@ invalidate-old(){
 
 do-export(){
     local session
+    local aktivTilbyder
+    local herokuAffinity
+
     if [[ ! -e "$TOKENFILE" ]]; then
         error "No cookie stored."
     fi
-    if [[ -z "$INATUR_AKTIVTILBYDER" ]]; then
-        error "Environment variable INATUR_AKTIVTILBYDER is not set"
-    fi
+
     session=$(cat "$TOKENFILE")
-    echo "export INATUR_COOKIE='session=$session; aktivTilbyder=$INATUR_AKTIVTILBYDER'"
+    local aktivTilbyderFromCookie=""
+    if [[ -f "$COOKIES_FILE" ]]; then
+        aktivTilbyderFromCookie="$(jq -r '.[] | select(.name=="aktivTilbyder") | .value' "$COOKIES_FILE" | tail -n 1)"
+    fi
+
+    if [[ -n "$INATUR_AKTIVTILBYDER" ]]; then
+        aktivTilbyder="$INATUR_AKTIVTILBYDER"
+    elif [[ -n "$aktivTilbyderFromCookie" ]]; then
+        aktivTilbyder="$aktivTilbyderFromCookie"
+    fi
+
+    if [[ -n "$INATUR_AKTIVTILBYDER" && -n "$aktivTilbyderFromCookie" && "$INATUR_AKTIVTILBYDER" != "$aktivTilbyderFromCookie" ]]; then
+        echo "warning: INATUR_AKTIVTILBYDER=${INATUR_AKTIVTILBYDER} differs from cookies.json aktivTilbyder=${aktivTilbyderFromCookie}" >&2
+    fi
+
+    if [[ -z "$aktivTilbyder" ]]; then
+        error "Could not determine aktivTilbyder. Set INATUR_AKTIVTILBYDER and try again."
+    fi
+
+    if [[ -f "$COOKIES_FILE" ]]; then
+        herokuAffinity="$(jq -r '.[] | select(.name=="heroku-session-affinity") | .value' "$COOKIES_FILE" | tail -n 1)"
+    fi
+
+    if [[ -n "$herokuAffinity" ]]; then
+        echo "export INATUR_COOKIE='session=$session; heroku-session-affinity=$herokuAffinity; aktivTilbyder=$aktivTilbyder'"
+    else
+        echo "export INATUR_COOKIE='session=$session; aktivTilbyder=$aktivTilbyder'"
+    fi
 }
 
 error(){
