@@ -75,20 +75,7 @@ do-export(){
     fi
 
     session=$(cat "$TOKENFILE")
-    local aktivTilbyderFromCookie=""
-    if [[ -f "$COOKIES_FILE" ]]; then
-        aktivTilbyderFromCookie="$(jq -r '.[] | select(.name=="aktivTilbyder") | .value' "$COOKIES_FILE" | tail -n 1)"
-    fi
-
-    if [[ -n "$INATUR_AKTIVTILBYDER" ]]; then
-        aktivTilbyder="$INATUR_AKTIVTILBYDER"
-    elif [[ -n "$aktivTilbyderFromCookie" ]]; then
-        aktivTilbyder="$aktivTilbyderFromCookie"
-    fi
-
-    if [[ -n "$INATUR_AKTIVTILBYDER" && -n "$aktivTilbyderFromCookie" && "$INATUR_AKTIVTILBYDER" != "$aktivTilbyderFromCookie" ]]; then
-        echo "warning: INATUR_AKTIVTILBYDER=${INATUR_AKTIVTILBYDER} differs from cookies.json aktivTilbyder=${aktivTilbyderFromCookie}" >&2
-    fi
+    aktivTilbyder="$INATUR_AKTIVTILBYDER"
 
     if [[ -z "$aktivTilbyder" ]]; then
         error "Could not determine aktivTilbyder. Set INATUR_AKTIVTILBYDER and try again."
