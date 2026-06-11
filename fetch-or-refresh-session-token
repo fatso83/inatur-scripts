@@ -2,91 +2,326 @@
 const fs = require("fs");
 const path = require("path");
 const { chromium } = require("playwright");
-const BASE_URL = "https://www.inatur.no";
 
-async function tryRefreshOrLogin(_ctx, page, targetPath, user, pass) {
-  const targetUrl = `${BASE_URL}${targetPath}`;
-  const loginUrl = `${BASE_URL}/login?callbackAction=${encodeURIComponent(
-    targetPath
-  )}`;
+const APP_HOSTS = ["www.inatur.no", "web2.inatur.no"];
+const TARGET_PATH = "/min-side";
+const LOGIN_TIMEOUT_MS = 10000;
+const PAGE_TIMEOUT_MS = 20000;
+const POST_LOGIN_WAIT_MS = 120000;
 
-  // 1) Start login flow
-  await page.goto(loginUrl, { waitUntil: "networkidle" });
+const USERNAME_SELECTORS = [
+  'input[name="username"]',
+  'input[type="email"]',
+  '#username',
+];
 
-  // 2) Wait to see if we got to the Keycloak form or was simply refreshed
-  if (page.url().match(targetUrl))
-    // we simply needed to refresh the token!
+const PASSWORD_SELECTORS = [
+  'input[name="password"]',
+  'input[type="password"]',
+  '#password',
+];
+
+const SUBMIT_SELECTORS = [
+  'button[type="submit"]',
+  'input[type="submit"]',
+  'button:has-text("Logg inn")',
+  'button:has-text("Sign in")',
+];
+
+const LOGIN_URL_MARKERS = [
+  /\/login\b/i,
+  /protocol\/openid-connect/i,
+  /keycloak/i,
+  /oauth/i,
+  /sso/i,
+];
+
+function wait(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function isLoginUrl(url) {
+  return LOGIN_URL_MARKERS.some((pattern) => pattern.test(url));
+}
+
+async function firstVisibleLocator(page, selectors, timeoutMs) {
+  const deadline = Date.now() + timeoutMs;
+
+  while (Date.now() < deadline) {
+    for (const selector of selectors) {
+      const locator = page.locator(`${selector}:visible`);
+      if ((await locator.count()) > 0) {
+        return locator.first();
+      }
+    }
+    await wait(120);
+  }
+
+  return null;
+}
+
+async function hasVisibleField(page, selectors) {
+  for (const selector of selectors) {
+    const locator = page.locator(`${selector}:visible`);
+    if ((await locator.count()) > 0) return true;
+  }
+
+  return false;
+}
+
+function parseCookieHeader(raw) {
+  if (!raw) return [];
+
+  return raw
+    .split(";")
+    .map((p) => p.trim())
+    .filter(Boolean)
+    .map((pair) => {
+      const idx = pair.indexOf("=");
+      if (idx < 0) return null;
+      return {
+        name: pair.slice(0, idx).trim(),
+        value: pair.slice(idx + 1).trim(),
+      };
+    })
+    .filter(Boolean);
+}
+
+function isCookieAttributeName(name) {
+  const key = name.toLowerCase();
+  return (
+    key === "path" ||
+    key === "domain" ||
+    key === "secure" ||
+    key === "httponly" ||
+    key === "samesite" ||
+    key === "expires" ||
+    key === "max-age" ||
+    key === "priority"
+  );
+}
+
+function isLikelyCookieConsentSession(cookie) {
+  return (
+    cookie.name === "session" &&
+    (cookie.value.includes("CookieConsent=") || cookie.value.startsWith("{"))
+  );
+}
+
+function normalizeEnvCookies(raw) {
+  const parsed = parseCookieHeader(raw);
+  if (!parsed.length) return [];
+
+  const map = new Map();
+
+  for (const cookie of parsed) {
+    if (!cookie.name || !cookie.value) continue;
+    if (!/^[^\\s;=]+$/.test(cookie.name)) continue;
+    if (isCookieAttributeName(cookie.name)) continue;
+
+    const existing = map.get(cookie.name);
+    if (!existing || (existing && isLikelyCookieConsentSession(existing) && !isLikelyCookieConsentSession(cookie))) {
+      map.set(cookie.name, cookie);
+    }
+  }
+
+  return Array.from(map.values());
+}
+
+function toWritableHarPath(rawPath) {
+  if (!rawPath) return null;
+
+  const resolved = path.resolve(process.cwd(), rawPath);
+  if (resolved.startsWith("/tmp/")) {
+    return resolved.replace(/^\/tmp\//, "/private/tmp/");
+  }
+  return resolved;
+}
+
+function canWriteDirectory(filePath) {
+  const dir = path.dirname(filePath);
+  try {
+    fs.mkdirSync(dir, { recursive: true });
+    fs.accessSync(dir, fs.constants.W_OK);
+    return true;
+  } catch {
     return false;
+  }
+}
 
-  await page.waitForSelector('input[name="username"]', { timeout: 10000 });
+async function seedCookiesFromEnv(context) {
+  const raw = process.env.INATUR_COOKIE;
+  if (!raw) return;
 
-  // 3) Fill & submit
-  await page.fill('input[name="username"]', user);
-  await page.fill('input[name="password"]', pass);
-  await Promise.all([
-    page.click('button[type="submit"]'),
-    // wait for the final navigation to callbackPath
-    page.waitForURL(`https://www.inatur.no${targetPath}`, {
-      timeout: 15000,
-      waitUntil: "networkidle",
-    }),
-  ]);
-  return true;
+  const cookies = normalizeEnvCookies(raw);
+  if (!cookies.length) return;
+
+  for (const cookie of cookies) {
+    for (const host of APP_HOSTS) {
+      await context.addCookies([
+        {
+          url: `https://${host}/`,
+          name: cookie.name,
+          value: cookie.value,
+        },
+      ]);
+    }
+  }
+}
+
+function getDomainScore(cookieDomain, targetHost) {
+  if (!cookieDomain) return 0;
+
+  const normalized = cookieDomain.startsWith(".") ? cookieDomain.slice(1) : cookieDomain;
+
+  if (normalized === targetHost) return 100;
+  if (targetHost.endsWith(`.${normalized}`)) return 75;
+  if (normalized.endsWith(targetHost)) return 50;
+  if (normalized.includes("inatur.no")) return 10;
+
+  return 0;
+}
+
+async function pickSessionCookie(context, finalUrl) {
+  const targetHost = new URL(finalUrl).hostname;
+  const candidates = (await context.cookies()).filter((cookie) => cookie.name === "session");
+
+  if (!candidates.length) return null;
+
+  const withScore = candidates
+    .map((cookie) => ({ cookie, score: getDomainScore(cookie.domain || "", targetHost) }))
+    .filter((entry) => entry.score > 0)
+    .sort((a, b) => b.score - a.score);
+
+  if (withScore.length > 0) {
+    return withScore[0].cookie;
+  }
+
+  return candidates[candidates.length - 1];
+}
+
+async function openAuthenticatedTarget(page, targetPath) {
+  for (const host of APP_HOSTS) {
+    const targetUrl = `https://${host}${targetPath}`;
+    await page.goto(targetUrl, { waitUntil: "networkidle", timeout: PAGE_TIMEOUT_MS });
+
+    if (!isLoginUrl(page.url()) && !(await hasVisibleField(page, USERNAME_SELECTORS))) {
+      return host;
+    }
+  }
+
+  return null;
+}
+
+async function fillCredentialsAndSubmit(page, user, pass) {
+  const username = await firstVisibleLocator(page, USERNAME_SELECTORS, LOGIN_TIMEOUT_MS);
+  if (!username) throw new Error("Fant ikke synlig username-felt");
+
+  const password = await firstVisibleLocator(page, PASSWORD_SELECTORS, LOGIN_TIMEOUT_MS);
+  if (!password) throw new Error("Fant ikke synlig password-felt");
+
+  await username.fill(user);
+  await password.fill(pass);
+
+  const submit = await firstVisibleLocator(page, SUBMIT_SELECTORS, 5000);
+  if (submit) {
+    await submit.click();
+  } else {
+    await page.keyboard.press("Enter");
+  }
+}
+
+async function tryRefreshOrLogin(page, targetPath, user, pass) {
+  const alreadyAuthedHost = await openAuthenticatedTarget(page, targetPath);
+  if (alreadyAuthedHost) {
+    return { loggedIn: true, activeHost: alreadyAuthedHost };
+  }
+
+  let loginPageFound = false;
+
+  for (const host of APP_HOSTS) {
+    const loginUrl = `https://${host}/login?callbackAction=${encodeURIComponent(targetPath)}`;
+    await page.goto(loginUrl, { waitUntil: "networkidle", timeout: PAGE_TIMEOUT_MS });
+
+    if (await hasVisibleField(page, USERNAME_SELECTORS)) {
+      loginPageFound = true;
+      break;
+    }
+  }
+
+  if (!loginPageFound) {
+    throw new Error("Fant ikke påloggingsskjema med synlig username-felt");
+  }
+
+  await fillCredentialsAndSubmit(page, user, pass);
+
+  await page
+    .waitForLoadState("networkidle", {
+      timeout: POST_LOGIN_WAIT_MS,
+    })
+    .catch(() => {});
+
+  const activeHost = await openAuthenticatedTarget(page, targetPath);
+
+  return { loggedIn: !!activeHost, activeHost };
 }
 
 async function main() {
   const user = process.env.INATUR_USER;
   const pass = process.env.INATUR_PASSWORD;
+
   if (!user || !pass) {
     console.error("Please set INATUR_USER and INATUR_PASSWORD");
     process.exit(1);
   }
 
-  const targetPath = "/min-side";
-  const targetUrl = BASE_URL + targetPath;
+  const requestedHarPath = process.env.INATUR_HAR_PATH;
+  const harPath = requestedHarPath && toWritableHarPath(requestedHarPath);
+  const canRecordHar = harPath && canWriteDirectory(harPath);
+  if (requestedHarPath && !canRecordHar) {
+    console.error(
+      `Kunne ikke bruke INATUR_HAR_PATH=${requestedHarPath}; kjører uten HAR-opptak`
+    );
+  }
 
   const browser = await chromium.launch({ headless: true });
-  const ctx = await browser.newContext();
+  const contextOptions = canRecordHar ? { recordHar: { path: harPath } } : {};
+  const ctx = await browser.newContext(contextOptions);
   const page = await ctx.newPage();
 
-  // Try reuse
+  await seedCookiesFromEnv(ctx);
+
   const COOKIE_FILE = path.resolve(process.cwd(), "cookies.json");
   if (fs.existsSync(COOKIE_FILE)) {
     const stored = JSON.parse(fs.readFileSync(COOKIE_FILE, "utf8"));
-    await ctx.addCookies(stored);
-
-    // Quick header check
-    //debugPage(page, "min side", targetUrl);
-    const resp = await page.request.get(targetUrl);
-    if (resp.status() === 403) {
-      didFullLogin = await tryRefreshOrLogin(ctx, page, targetPath, user, pass);
+    if (Array.isArray(stored) && stored.length > 0) {
+      await ctx.addCookies(stored);
     }
-  } else {
-    didFullLogin = await tryRefreshOrLogin(ctx, page, targetPath, user, pass);
   }
 
-  // Grab the session cookie
-  const sessionCookie = (await ctx.cookies()).find((c) => c.name === "session");
+  const loginResult = await tryRefreshOrLogin(page, TARGET_PATH, user, pass);
+  if (!loginResult.loggedIn) {
+    console.error("Kunne ikke logge inn mot inatur-domener");
+    await browser.close();
+    process.exit(1);
+  }
+
+  const finalUrl = `https://${loginResult.activeHost}${TARGET_PATH}`;
+  await page.goto(finalUrl, { waitUntil: "networkidle", timeout: PAGE_TIMEOUT_MS });
+
+  const sessionCookie = await pickSessionCookie(ctx, page.url());
   if (!sessionCookie) {
     console.error("❌ No `session` cookie found!");
     await browser.close();
     process.exit(1);
   }
 
-  // Save cookies.json for next time
   fs.writeFileSync(COOKIE_FILE, JSON.stringify(await ctx.cookies(), null, 2));
-
-  // Output
   console.log(sessionCookie.value);
 
+  await ctx.close();
   await browser.close();
   process.exit(0);
-}
-
-async function debugPage(page, title, url) {
-  console.debug(`title: ${title}   --   url: ${url} `);
-  const resp = await page.request.get(url);
-  console.debug("status", resp.status());
 }
 
 main().catch((err) => {
