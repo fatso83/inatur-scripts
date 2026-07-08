@@ -1,0 +1,33 @@
+{
+  "id": "edit-1",
+  "tilbudId": "63ee3bc2d0440d29d6c7ef45",
+  "kort": [
+    {
+      "id": "63ee3ba9d0440d29d6c7ef44",
+      "type": "hyttekort",
+      "tittel": "Hytte",
+      "antall": {
+        "standardverdi": 1,
+        "perioder": [
+          {
+            "fra": 1792792800000,
+            "til": 1792879200000,
+            "verdi": 0,
+            "kommentar": "[airbnb-inatur-sync] uid=old",
+            "fraFormatert": "24.10.2026",
+            "tilFormatert": "25.10.2026"
+          },
+          {
+            "fra": 1792965600000,
+            "til": 1793052000000,
+            "verdi": 0,
+            "kommentar": "familie",
+            "fraFormatert": "26.10.2026",
+            "tilFormatert": "27.10.2026"
+          }
+        ],
+        "harPerioder": true
+      }
+    }
+  ]
+}

@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "test": "node --test"
+  },
   "dependencies": {
     "debug": "^4.4.1",
     "openid-client": "^6.6.2",

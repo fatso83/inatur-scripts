@@ -2,3 +2,6 @@
 .session-token.txt
 cookies.json
 notater.txt
+.worktrees/
+inatur.har
+bun.lock
