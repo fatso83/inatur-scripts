@@ -1,5 +1,7 @@
 # inatur-scripts
 
+Disse skriptene patcher på funksjonalitet som mangler i iNatur, slik som enkel oversikt over kommende opphold sort på utleiedato og holde bookinger synkronisert på tvers av AirBnb og iNatur. 
+
 ## Hvordan bruke skriptene
 For å bruke skriptene må du sette miljøvariablene i `.env`:
 ```
