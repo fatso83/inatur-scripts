@@ -1,0 +1,9 @@
+.git
+.env
+.envrc
+.session-token.txt
+cookies.json
+inatur.har
+node_modules
+.worktrees
+npm-debug.log

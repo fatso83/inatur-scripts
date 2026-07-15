@@ -93,6 +93,9 @@ Etter publisering kan Inatur sin iCal-eksport brukes som sanity check:
 curl --silent --show-error "$INATUR_AVAILABILITY_ICAL_URL" | head -40
 ```
 
+For kjøring i Google Cloud Run hvert 5. minutt med Firestore-basert cookie-state, se
+[`docs/google-cloud-run.md`](docs/google-cloud-run.md).
+
 ### cookie-store
 bash script med innebygd test-suite som håndterer innhenting av cookie, oppfriskning av sesjoner, m.m.
 Som sluttbruker trenger du ikke tenke direkte på det, men kan brukes sammen med direnv for å sørge for

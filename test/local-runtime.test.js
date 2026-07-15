@@ -12,6 +12,8 @@ const {
   ensureInaturCookie,
   loadDotEnv,
   parseCookieExport,
+  getCookiePath,
+  getTokenPath,
   readCookieJar,
   refreshInaturCookie
 } = require('../lib/local-runtime');
@@ -86,6 +88,41 @@ test('reads full browser cookie jar and builds cookie header', () => {
     cookieJarToHeader(jar),
     'session=abc; KEYCLOAK_IDENTITY=identity-1; aktivTilbyder=seller-1'
   );
+});
+
+test('reads cookie jar from configured path', () => {
+  const cwd = fs.mkdtempSync(path.join(os.tmpdir(), 'inatur-custom-cookies-'));
+  const cookiePath = path.join(cwd, 'state', 'cookies.json');
+  fs.mkdirSync(path.dirname(cookiePath), { recursive: true });
+  fs.writeFileSync(cookiePath, JSON.stringify([{ name: 'session', value: 'abc' }]));
+
+  assert.deepEqual(readCookieJar({ cookiePath }), [{ name: 'session', value: 'abc' }]);
+});
+
+test('resolves cookie and token paths from env', () => {
+  const cwd = fs.mkdtempSync(path.join(os.tmpdir(), 'inatur-paths-'));
+  const env = {
+    INATUR_TOKEN_FILE: path.join(cwd, 'state', '.session-token.txt'),
+    INATUR_COOKIES_FILE: path.join(cwd, 'state', 'cookies.json')
+  };
+
+  assert.equal(getTokenPath({ cwd, env }), env.INATUR_TOKEN_FILE);
+  assert.equal(getCookiePath({ cwd, env }), env.INATUR_COOKIES_FILE);
+});
+
+test('cookie-store validate accepts absolute custom token path', () => {
+  const cwd = fs.mkdtempSync(path.join(os.tmpdir(), 'inatur-cookie-store-'));
+  const tokenPath = path.join(cwd, 'state', '.session-token.txt');
+  fs.mkdirSync(path.dirname(tokenPath), { recursive: true });
+  fs.writeFileSync(tokenPath, 'session-1\n');
+
+  const result = childProcess.spawnSync(path.join(__dirname, '..', 'cookie-store'), ['validate'], {
+    cwd: path.join(__dirname, '..'),
+    env: { ...process.env, INATUR_TOKEN_FILE: tokenPath },
+    encoding: 'utf8'
+  });
+
+  assert.equal(result.status, 0, result.stderr);
 });
 
 test('applies set-cookie values by replacing existing cookie names', () => {

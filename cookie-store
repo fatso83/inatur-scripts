@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-TOKENFILE=".session-token.txt"
-COOKIES_FILE="cookies.json"
+TOKENFILE="${INATUR_TOKEN_FILE:-.session-token.txt}"
+COOKIES_FILE="${INATUR_COOKIES_FILE:-cookies.json}"
 
 if [[ -n $DEBUG ]]; then
     set -x
@@ -59,7 +59,11 @@ persist(){
 # 1 if invalid or invalid
 invalidate-old(){
     # invalidate any cookie older than six hours
-    if  [[ $(find . -mmin -60 -name "$TOKENFILE" -print -quit) == '' ]]; then
+    if [[ ! -f "$TOKENFILE" ]]; then
+        delete-tokenfile
+        return 1
+    fi
+    if  [[ $(find "$TOKENFILE" -mmin -60 -type f -print -quit) == '' ]]; then
         delete-tokenfile
         return 1
     fi

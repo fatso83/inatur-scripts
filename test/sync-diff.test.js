@@ -121,3 +121,22 @@ test('formats preview output as human-readable Norwegian actions', () => {
   assert.match(output, /vil legge til sperring 22\.10\.2026 -> 23\.10\.2026/);
   assert.match(output, /vil slette sperring 24\.10\.2026 -> 25\.10\.2026/);
 });
+
+test('formats HTML-escaped Inatur comments as readable text', () => {
+  const output = formatSyncPlan({
+    add: [],
+    remove: [{
+      fraFormatert: '09.07.2026',
+      tilFormatert: '10.07.2026',
+      kommentar: '[airbnb-inatur-sync] uid&#61;1418fb94e984-ca5d0a6d574ec6c989fb0dd094978d31&#64;airbnb.com'
+    }],
+    keep: [],
+    coveredByManual: []
+  }, { publish: true });
+
+  assert.match(
+    output,
+    /\[airbnb-inatur-sync\] uid=1418fb94e984-ca5d0a6d574ec6c989fb0dd094978d31@airbnb\.com/
+  );
+  assert.doesNotMatch(output, /&#61;|&#64;/);
+});
