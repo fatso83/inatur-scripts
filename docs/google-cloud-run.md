@@ -4,7 +4,7 @@ Denne løsningen kjører samme synk som lokal CLI, men med Firestore som state s
 
 ## Oppsett
 
-Bruk Google-kontoen `carlerik@gmail.com` og prosjektet `inatur-synk`.
+Bruk Google-kontoen `din-konto@gmail.com` og prosjektet `inatur-synk`.
 
 ```bash
 PROJECT_ID=inatur-synk REGION=europe-north1 ./scripts/gcloud/setup-inatur-synk.sh
