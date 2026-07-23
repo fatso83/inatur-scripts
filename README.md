@@ -67,7 +67,7 @@ redigeringsflyt leser det også hele `cookies.json`, fordi web2/rollebytte kreve
 Forhåndsvisning skriver en diff, for eksempel:
 
 ```
-Forhandsvisning: ingen endringer blir lagret eller publisert.
+Forhåndsvisning: ingen endringer blir lagret eller publisert.
 vil slette sperring 24.10.2026 -> 25.10.2026 ([airbnb-inatur-sync] uid=...)
 vil legge til sperring 20.10.2026 -> 21.10.2026 ([airbnb-inatur-sync] uid=...)
 ```

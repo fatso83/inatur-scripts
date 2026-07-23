@@ -950,7 +950,7 @@ Expected: JSON output showing one script-owned period and no write.
 Expected preview text includes lines like:
 
 ```text
-Forhandsvisning: ingen endringer blir lagret eller publisert.
+Forhåndsvisning: ingen endringer blir lagret eller publisert.
 vil slette sperring 24.10.2026 -> 25.10.2026 ([airbnb-inatur-sync] uid=...)
 vil legge til sperring 22.10.2026 -> 23.10.2026 ([airbnb-inatur-sync] uid=...)
 ```

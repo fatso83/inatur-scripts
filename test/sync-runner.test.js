@@ -41,7 +41,7 @@ test('runSync previews add actions without saving', async () => {
 
   assert.equal(result.publish, false);
   assert.equal(result.add, 1);
-  assert.match(lines.join('\n'), /Forhandsvisning/);
+  assert.match(lines.join('\n'), /Forhåndsvisning/);
   assert.match(lines.join('\n'), /vil legge til sperring 20\.10\.2026 -> 21\.10\.2026/);
 });
 

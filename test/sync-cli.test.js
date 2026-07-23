@@ -16,7 +16,7 @@ test('preview prints human-readable add and remove actions without publishing', 
   });
 
   assert.equal(result.status, 0, result.stderr);
-  assert.match(result.stdout, /Forhandsvisning: ingen endringer blir lagret eller publisert\./);
+  assert.match(result.stdout, /Forhåndsvisning: ingen endringer blir lagret eller publisert\./);
   assert.match(result.stdout, /vil slette sperring 24\.10\.2026 -> 25\.10\.2026/);
   assert.match(result.stdout, /vil legge til sperring 20\.10\.2026 -> 21\.10\.2026/);
   assert.match(result.stdout, /"publish": false/);
@@ -37,7 +37,7 @@ test('preview is the default when publish is not set', () => {
   });
 
   assert.equal(result.status, 0, result.stderr);
-  assert.match(result.stdout, /Forhandsvisning: ingen endringer blir lagret eller publisert\./);
+  assert.match(result.stdout, /Forhåndsvisning: ingen endringer blir lagret eller publisert\./);
   assert.match(result.stdout, /"publish": false/);
 });
 
